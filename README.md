@@ -9,11 +9,11 @@
 * Extensão Ctype PHP
 * Extensão Fileinfo PHP
 * Extensão JSON PHP
-* Extensão PHP Mbstring
+* Extensão Mbstring PHP 
 * Extensão OpenSSL PHP
 * Extensão PDO PHP
 * Extensão Tokenizer PHP
-* Extensão XML PH
+* Extensão XML PHP
 * Composer
 * Instalador do Laravel
     * para mais orientações visite: https://laravel.com/docs/7.x/installation#installing-laravel
