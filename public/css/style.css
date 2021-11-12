@@ -1,0 +1,27 @@
+/* Cores */
+.bg-orange{
+    background-color: #FE8B3E;
+}
+.text-orange{
+    color: #ee5e0e !important;
+}
+.nav-item .text-orange:hover{
+    font-weight: bold;
+}
+.btn-orange{
+    background-color: #FE8B3E;
+    color: #ffffff;
+}
+.btn-orange:hover{
+    background-color: #ee5e0e;
+    color: #ffffff;
+}
+
+/* "Carregando" do Ajax */
+#double_req_block{
+    width: 1060px;
+    height: 440px;
+    background-color: rgba(255, 255, 255, 0.718);
+    position: absolute;
+    z-index: 10;
+}
