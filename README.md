@@ -27,4 +27,4 @@
 5. Em seguida digite o comando para criar as tabelas no banco: php artisan migrate
 6. Após concluida as migrações inicie o projeto com o comando: php artisan serve
 7. Acesse o link que aparecerá na saída do comando acima
-8. Registre um usuário
+8. Registre um usuário e explore o sistema
