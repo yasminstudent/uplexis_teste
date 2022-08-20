@@ -1,10 +1,10 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Carros extends Model
+class Cars extends Model
 {
     public $timestamps = false;
 
@@ -17,8 +17,8 @@ class Carros extends Model
         'user_id', 'nome_veiculo', 'link', 'ano', 'combustivel', 'portas', 'quilometragem', 'cambio', 'cor'
     ];
 
-    public function usuario()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(Users::class, 'user_id');
     }
 }

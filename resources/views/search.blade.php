@@ -5,7 +5,7 @@
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <h4 class="text-center">Buscar Carro</h4>
-                <form method="POST" action="{{ route('search') }}" class="d-flex justify-content-center" id="search_car">
+                <form method="POST" action="{{ route('car.search') }}" class="d-flex justify-content-center" id="search_car">
                     @csrf
 
                     <div id="double_req_block" class="d-none">

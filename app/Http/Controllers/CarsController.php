@@ -3,33 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Carros;
-use App\User;
 use GuzzleHttp\Client;
+use App\Models\Cars as CarsModel;
+use App\Models\Users as UsersModel;
 
-class CarrosController extends Controller
+class CarsController extends Controller
 {
-    private $carro;
-    private $usuario;
+    private $car;
+    private $user;
 
-    public function __construct(Carros $carro, User $usuario)
+    public function __construct(CarsModel $car, UsersModel $user)
     {
-        $this->middleware('auth');
-        $this->carro = $carro;
-        $this->usuario = $usuario;
+        $this->car = $car;
+        $this->user = $user;
     }
 
     /**
      * Lista todos os carros relacionados ao usuário.
-     *
-     * @return \Illuminate\View\View
      */
-    public function index(){
-        $usuarioLogado = $this->usuario::find(auth()->user()->getAuthIdentifier());
+    public function index() :\Illuminate\View\View
+    {
+        $userId = auth()->user()->getAuthIdentifier();
+        $user = $this->user::find($userId);
 
-        return view('index', [
-            'carros' =>  $usuarioLogado->carros
-        ]);
+        return view('index', ['cars' => $user->cars]);
     }
 
     /**
@@ -38,76 +35,82 @@ class CarrosController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function search(Request $request){
+    public function search(Request $request)
+    {
         try {
-            $data = $request->all();
+            $term = urlencode($request->only(["term"]));
+            $client = new Client();
+            $response = $client->request(
+                'GET', 
+                "https://www.questmultimarcas.com.br/estoque?termo={$term}"
+            );
+            $contents = $response->getBody()->getContents();
 
-            $cliente = new Client();
-            $resposta = $cliente->request('GET', "https://www.questmultimarcas.com.br/estoque?termo={$data['term']}");
-            $conteudo = $resposta->getBody()->getContents();
-
-
+            //Criar um "motor" onde ficará as regex
+            //Fazer outras pq o layout da página mudou
+            //se ficar algo parecido com isso, seria viável um loop
+            //mudar os nomes das variáveis para inglês
+            //e definir o nome dos métodos
             preg_match_all(
                 '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/[0-9]+\/[0-9]+">([a-z A-Z 0-9 .]+)/is',
-                $conteudo,
+                $contents,
                 $matrizNomeVeiculo
             );
 
             preg_match_all(
                 '/inner">[\n\r]*<a href="(https:\/\/www.questmultimarcas.com.br\/carros\/[a-z]+\/[\w\-\d]+\/[0-9]+\/[0-9]+)">/is',
-                $conteudo,
+                $contents,
                 $matrizLink
             );
 
             preg_match_all(
                 '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/([0-9]+)\/[0-9]+">[a-z A-Z 0-9 .]+/is',
-                $conteudo,
+                $contents,
                 $matrizAno
             );
 
             preg_match_all(
                 '/Combustível:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9]+)/is',
-                $conteudo,
+                $contents,
                 $matrizCombustivel
             );
 
             preg_match_all(
                 '/Câmbio:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
-                $conteudo,
+                $contents,
                 $matrizCambio
             );
 
             preg_match_all(
                 '/Portas:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
-                $conteudo,
+                $contents,
                 $matrizPorta
             );
 
             preg_match_all(
                 '/Quilometragem:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
-                $conteudo,
+                $contents,
                 $matrizQuilometragem
             );
 
             preg_match_all(
                 '/Cor:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
-                $conteudo,
+                $contents,
                 $matrizCor
             );
 
-            if(count($matrizNomeVeiculo[1]) == 0)
-            {
+            if (count($matrizNomeVeiculo[1]) == 0) { //esse if ficaria logo no ínicio
                 return response()->json([
                     'data' => [
                         'message' => 'Nenhum carro foi encontrado!',
                         'status' => 200
                     ]
-                ],200);
+                ], 200);
             }
-            else
-            {
-                for($i=0; $i< count($matrizNomeVeiculo[1]); $i++){
-                    $this->carro->create([
+            else {
+                $numberCars = count($matrizNomeVeiculo[1]);
+                for ($i = 0; $i < $numberCars; $i++) {
+                    $this->car->create([
                         'user_id' => auth()->user()->getAuthIdentifier(),
                         'nome_veiculo' =>  $matrizNomeVeiculo[1][$i],
                         'link' => $matrizLink[1][$i],
@@ -125,10 +128,12 @@ class CarrosController extends Controller
                         'message' => 'Carro(s) cadastrado(s) com sucesso!',
                         'status' => 201
                     ]
-                ],201);
+                ], 201);
             }
         }
-        catch (\Exception $e){
+        catch (\Exception $e) {
+            //talvez usar a Exception
+            //talvez criar umas Exceptions
             return response()->json([
                 'data' => [
                     'message' => 'Erro ao buscar carro!',
@@ -146,11 +151,11 @@ class CarrosController extends Controller
      */
     public function destroy($id)
     {
-        $carro = $this->carro::find($id);
+        $car = $this->car::find($id);
 
-        if($carro->user_id ==  auth()->user()->getAuthIdentifier())
-        {
-            $carro->delete();
+        //criar um middleware para fazer essa verificação?
+        if ($car->user_id == auth()->user()->getAuthIdentifier()) {
+            $car->delete();
         }
 
         return redirect("/index");

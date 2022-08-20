@@ -1,12 +1,12 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class User extends Authenticatable
+class Users extends Authenticatable
 {
     use Notifiable;
 
@@ -37,8 +37,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function carros()
+    public function cars()
     {
-        return $this->hasMany(Carros::class, 'user_id');
+        return $this->hasMany(Cars::class, 'user_id');
     }
 }

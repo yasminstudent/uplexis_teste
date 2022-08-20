@@ -41,7 +41,7 @@
                                 <a class="nav-link text-orange" href="{{ route('index') }}">{{ __('Listar') }}</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-orange" href="{{ route('view.search') }}">{{ __('Capturar') }}</a>
+                                <a class="nav-link text-orange" href="{{ route('car.view.search') }}">{{ __('Capturar') }}</a>
                             </li>
                         @endguest
                     </ul>

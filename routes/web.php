@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CarsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,16 +14,34 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function (){
-    return redirect()->route('login');
-});
-Route::get('/home',  function (){
-    return redirect()->route('index');
-});
+// ----- ROTAS QUE NÃO REQUEREM AUTENTICAÇÃO -----
+Route::redirect('/', '/login');
+Route::redirect('/home', '/index');
 
 Auth::routes();
 
-Route::get('/index', 'CarrosController@index')->name('index');
-Route::view('/search', 'search')->name('view.search');
-Route::post('/search', 'CarrosController@search')->name('search');
-Route::delete('/car/delete/{id}', 'CarrosController@destroy')->name('carro.del');
+// ----- ROTAS QUE REQUEREM AUTENTICAÇÃO -----
+Route::middleware(['auth'])->group(function () {
+
+    // Retorna views
+    Route::get(
+        '/index',
+        [CarsController::class, 'index']
+    )->name('index');
+
+    Route::view(
+        '/search', 
+        'search'
+    )->name('car.view.search');
+
+    // Outras ações
+    Route::post(
+        '/search',
+        [CarsController::class, 'search']
+    )->name('car.search');
+
+    Route::delete(
+        '/car/delete/{id}',
+        [CarsController::class, 'destroy']
+    )->name('car.delete');
+});
