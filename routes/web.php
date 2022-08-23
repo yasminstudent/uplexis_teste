@@ -22,7 +22,6 @@ Auth::routes();
 
 // ----- ROTAS QUE REQUEREM AUTENTICAÇÃO -----
 Route::middleware(['auth'])->group(function () {
-
     // Retorna views
     Route::get(
         '/index',
