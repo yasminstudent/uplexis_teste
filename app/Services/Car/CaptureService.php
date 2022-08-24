@@ -4,11 +4,10 @@ namespace App\Services\Car;
 
 use GuzzleHttp\Client;
 use App\Models\Cars as CarsModel;
-use App\Models\Users as UsersModel;
 
 class CaptureService extends Controller
 {
-    public function capture(string $term, Client $client)
+    public function capture(string $term, Client $client, CarsModel $car)
     {
         try {
             if (empty($term)) {
@@ -21,7 +20,7 @@ class CaptureService extends Controller
             );
             $contents = $response->getBody()->getContents();
 
-            $regexs = $this->getRegexs();
+            $regexs = $this->getRegexs($car);
             $matrix = [];
 
             foreach ($regexs as $key => $regex) {
@@ -43,17 +42,17 @@ class CaptureService extends Controller
         }
     }
 
-    private function getRegexs()
+    private function getRegexs(CarsModel $car)
     {
         return [
-            "names" => '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/[0-9]+\/[0-9]+">([a-z A-Z 0-9 .]+)/is',
-            "links" => '/inner">[\n\r]*<a href="(https:\/\/www.questmultimarcas.com.br\/carros\/[a-z]+\/[\w\-\d]+\/[0-9]+\/[0-9]+)">/is',
-            "years" => '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/([0-9]+)\/[0-9]+">[a-z A-Z 0-9 .]+/is',
-            "fuels" => '/Combustível:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9]+)/is',
-            "carGearbox" => '/Câmbio:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
-            "doors" => '/Portas:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
-            "colors" => '/Cor:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
-            "mileage" => '/Quilometragem:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
+            $car::NAME => '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/[0-9]+\/[0-9]+">([a-z A-Z 0-9 .]+)/is',
+            $car::LINK => '/inner">[\n\r]*<a href="(https:\/\/www.questmultimarcas.com.br\/carros\/[a-z]+\/[\w\-\d]+\/[0-9]+\/[0-9]+)">/is',
+            $car::YEAR => '/<a href="https:\/\/[\w\d\.]*\/carros\/[a-z]+\/[\w\-]+\/([0-9]+)\/[0-9]+">[a-z A-Z 0-9 .]+/is',
+            $car::FUEL => '/Combustível:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9]+)/is',
+            $car::GEARBOX => '/Câmbio:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
+            $car::DOOR => '/Portas:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á]+)/is',
+            $car::COLOR => '/Cor:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
+            $car::MILEAGE => '/Quilometragem:\s<\/span>(\n|\r)\s+<span class="card-list__info">((\n|\r)\s+)([a-z A-Z 0-9 á Á.]+)/is',
         ];       
     }
 }

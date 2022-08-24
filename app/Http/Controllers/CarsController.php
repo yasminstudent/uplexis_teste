@@ -46,7 +46,7 @@ class CarsController extends Controller
         $client = new Client();
         $captureService = new CaptureService();
 
-        $capture = $captureService->capture($term, $client);
+        $capture = $captureService->capture($term, $client, $this->car);
 
         $cars = [];
         $numberCars = count($capture["names"][1]);
@@ -57,20 +57,21 @@ class CarsController extends Controller
         ) {
             $cars[] = [
                 'user_id' => $this->userId,
-                'nome_veiculo' =>  $capture["names"][1][$i],
-                'link' => $capture["links"][1][$i],
-                'ano' => $capture["years"][1][$i],
-                'combustivel' => $capture["fuels"][4][$i],
-                'portas' => $capture["doors"][4][$i],
-                'quilometragem' => $capture["mileage"][4][$i],
-                'cambio' => $capture["carGearbox"][4][$i],
-                'cor' => $capture["colors"][4][$i]
+                'nome_veiculo' =>  $capture[$this->car::NAME][1][$i],
+                'link' => $capture[$this->car::LINK][1][$i],
+                'ano' => $capture[$this->car::YEAR][1][$i],
+                'combustivel' => $capture[$this->car::FUEL][4][$i],
+                'portas' => $capture[$this->car::DOOR][4][$i],
+                'quilometragem' => $capture[$this->car::MILEAGE][4][$i],
+                'cambio' => $capture[$this->car::GEARBOX][4][$i],
+                'cor' => $capture[$this->car::COLOR][4][$i]
             ];
         }
 
         $this->car->createMany($cars);
         
-        //criar em config ou em outro lugar os nomes names, links etc
+        //criar uma interface para cars model
+        //criar em database um usuário já
 
         return response()->json([
             'data' => [
@@ -87,7 +88,7 @@ class CarsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function destroy($id)
+    public function destroy($id) :\Illuminate\Http\RedirectResponse 
     {
         $car = $this->car::find($id);
 
